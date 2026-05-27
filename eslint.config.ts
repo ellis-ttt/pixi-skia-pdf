@@ -59,4 +59,12 @@ export default defineConfigWithVueTs(
 			],
 		},
 	},
+
+	{
+		name: "app/disable-prefer-const",
+		files: ["**/*.{js,ts,vue}"],
+		rules: {
+			"prefer-const": "off",
+		},
+	},
 )

@@ -13,6 +13,7 @@
 		"format": "prettier --write ."
 	},
 	"dependencies": {
+		"pixi.js": "^8.18.1",
 		"vue": "^3.5.32"
 	},
 	"devDependencies": {
