@@ -1,0 +1,5 @@
+*.vue
+package-lock.json
+docs/**/*
+skia/**/*
+skia
