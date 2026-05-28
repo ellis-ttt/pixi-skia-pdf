@@ -2,6 +2,12 @@
 repo = "local"
 
 [[repos.hooks]]
+id = "submodule"
+name = "submodule"
+entry = "git submodule update --remote --merge"
+language = "system"
+
+[[repos.hooks]]
 id = "prettier"
 name = "prettier"
 entry = "./node_modules/.bin/prettier --write"
