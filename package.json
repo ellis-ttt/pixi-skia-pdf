@@ -4,7 +4,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "vite --host",
+		"dev": "npm run setup-canvaskit && vite --host",
+		"setup-canvaskit": "node scripts/setup-canvaskit.js",
 		"build": "vite build",
 		"preview": "vite preview",
 		"type-check": "vue-tsc --build",
@@ -13,7 +14,8 @@
 		"format": "prettier --write ."
 	},
 	"dependencies": {
-		"pixi.js": "^8.18.1",
+		"canvaskit-wasm": "^0.41.1",
+		"pixi.js-legacy": "^7.4.3",
 		"vue": "^3.5.32"
 	},
 	"devDependencies": {

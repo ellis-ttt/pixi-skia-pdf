@@ -1,52 +1,83 @@
 <script setup lang="ts">
-// description: This example demonstrates how to use a Container to group and manipulate multiple sprites
-import { Application, Assets, Container, Sprite } from 'pixi.js';
-import { onMounted, onUnmounted, useTemplateRef } from 'vue'
+import { Application, Assets, Container, Sprite } from "pixi.js-legacy"
+import { onMounted, onUnmounted, useTemplateRef } from "vue"
+import { SkiaRenderer } from "./skia-renderer"
 
-let pixiContainer = useTemplateRef('container')
+const containerRef = useTemplateRef<HTMLElement>("container")
 let app: Application | null = null
+let renderer: SkiaRenderer | null = null
 
 onMounted(() => {
-	makePixiApp().catch(err => console.error(err))
+	init().catch(err => console.error(err))
 })
 
-async function makePixiApp() {
-	app = new Application()
-	await app.init({ background: '#1099bb', resizeTo: window })
-	pixiContainer.value?.appendChild(app.canvas)
-	let container = new Container()
-	app.stage.addChild(container)
-	let texture = await Assets.load('https://pixijs.com/assets/bunny.png')
+async function init() {
+	const w = window.innerWidth
+	const h = window.innerHeight
 
-	for (let i = 0; i < 25; i++) {
-		const bunny = new Sprite(texture)
+	const pixi = new Application({
+		background: "#1099bb",
+		width: w,
+		height: h,
+		forceCanvas: true,
+	})
+	pixi.ticker.stop()
+	app = pixi
 
-		bunny.x = (i % 5) * 40
-		bunny.y = Math.floor(i / 5) * 40
-		container.addChild(bunny)
-	}
+	const view = pixi.view as HTMLCanvasElement
 
-	container.x = app.screen.width / 2
-	container.y = app.screen.height / 2
+	const scene = new Container()
+	pixi.stage.addChild(scene)
 
-	container.pivot.x = container.width / 2
-	container.pivot.y = container.height / 2
+	Assets.load("https://pixijs.com/assets/bunny.png").then(texture => {
+		for (let i = 0; i < 25; i++) {
+			const bunny = new Sprite(texture)
+			bunny.x = (i % 5) * 40
+			bunny.y = Math.floor(i / 5) * 40
+			scene.addChild(bunny)
+		}
 
-	app.ticker.add((time) => {
-		container.rotation -= 0.01 * time.deltaTime;
-	});
+		scene.x = pixi.screen.width / 2
+		scene.y = pixi.screen.height / 2
+		scene.pivot.x = scene.width / 2
+		scene.pivot.y = scene.height / 2
+	})
+
+	const el = containerRef.value
+	if (!el) return
+
+	const skia = new SkiaRenderer(el, w, h)
+	await skia.init()
+	skia.setPixiCanvas(view)
+	renderer = skia
+
+	skia.onRender(() => {
+		scene.rotation -= 0.01
+		pixi.renderer.render(pixi.stage)
+		skia.drawFrame()
+	})
+
+	window.addEventListener("resize", onResize)
+}
+
+function onResize() {
+	const w = window.innerWidth
+	const h = window.innerHeight
+	app?.renderer.resize(w, h)
+	renderer?.resize(w, h)
 }
 
 onUnmounted(() => {
+	window.removeEventListener("resize", onResize)
+	renderer?.destroy()
+	renderer = null
 	app?.destroy(true, true)
 	app = null
 })
 </script>
 
 <template>
-	<div ref="container">
-
-	</div>
+	<div ref="container"></div>
 </template>
 
 <style scoped>

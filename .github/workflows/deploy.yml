@@ -87,6 +87,11 @@ jobs:
               no_sksl_trace=true \
               release
 
+      - name: write build SHA
+        run: |
+          echo "${{ steps.skia-sha.outputs.sha }}" \
+            > skia/out/canvaskit_wasm/.build-sha
+
       - name: upload canvaskit
         uses: actions/upload-artifact@v4
         with:
@@ -94,6 +99,7 @@ jobs:
           path: |
             skia/out/canvaskit_wasm/canvaskit.js
             skia/out/canvaskit_wasm/canvaskit.wasm
+            skia/out/canvaskit_wasm/.build-sha
           if-no-files-found: error
 
   build:
